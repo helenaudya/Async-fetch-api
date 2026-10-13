@@ -38,6 +38,8 @@ async function fetchTasks() {
   }
 }
 
+
+
 function renderTasks() {
   daftarTugas.innerHTML = "";
   //task render
@@ -121,14 +123,15 @@ function renderTasks() {
 }
 
 // add new task
-function tambahTugas() {
+// Mengubah fungsi tambahTugas menjadi async untuk mendukung POST API
+async function tambahTugas() {
   const teksInput = inputTugas.value.trim();
   const matkulInput = selectMatkul.value;
   const deadlineInput = inputDeadline.value;
 
   pesanError.textContent = "";
 
-  // Validasi saat input
+  // 1. Validasi Input (sudah ada sebelumnya)
   if (teksInput.length < 3) {
     pesanError.textContent = "Judul tugas minimal 3 karakter!";
     return;
@@ -142,21 +145,42 @@ function tambahTugas() {
     return;
   }
 
-  // memasukkan array ke tasks
-  tasks.push({
+  // 2. Siapkan data objek yang akan dikirim ke server
+  const tugasBaru = {
     text: teksInput,
     matkul: matkulInput,
     deadline: deadlineInput,
     completed: false
-  });
+  };
 
-  // mengosongkan form
-  inputTugas.value = "";
-  selectMatkul.selectedIndex = 0;
-  inputDeadline.value = "";
-  pesanError.textContent = "";
+  try {
+    // 3. Kirim data ke server menggunakan POST /api/tugas
+    const response = await fetch('/api/tugas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' // Memberitahu server bahwa data berformat JSON
+      },
+      body: JSON.stringify(tugasBaru) // Mengubah objek JS menjadi string JSON
+    });
 
-  renderTasks();
+    // Periksa jika server menolak / terjadi error
+    if (!response.ok) {
+      throw new Error('Gagal menyimpan tugas ke server');
+    }
+
+    // 4. Jika berhasil, ambil ulang data terbaru dari server agar UI sinkron
+    await fetchTasks();
+
+    // 5. Kosongkan form input dan pesan error
+    inputTugas.value = "";
+    selectMatkul.selectedIndex = 0;
+    inputDeadline.value = "";
+    pesanError.textContent = "";
+
+  } catch (error) {
+    console.error('Terjadi kesalahan:', error);
+    pesanError.textContent = 'Gagal menambahkan tugas. Coba lagi.';
+  }
 }
 
 // pada tombol tambah
