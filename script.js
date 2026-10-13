@@ -38,8 +38,6 @@ async function fetchTasks() {
   }
 }
 
-
-
 function renderTasks() {
   daftarTugas.innerHTML = "";
   //task render
@@ -186,6 +184,31 @@ async function tambahTugas() {
 // pada tombol tambah
 tombolTambah.addEventListener("click", function() {
   tambahTugas();
+});
+
+// Memasang Event Delegation pada elemen induk (daftarTugas / <ul>)
+daftarTugas.addEventListener("click", async function(event) {
+  // Cek apakah yang diklik adalah tombol hapus
+  if (event.target.classList.contains("tombol-hapus")) {
+    const idTugas = event.target.dataset.id; // Ambil ID tugas dari atribut HTML
+
+    try {
+      // 1. Kirim request DELETE ke server
+      const response = await fetch(`/api/tugas/${idTugas}`, {
+        method: 'DELETE'
+      });
+
+      if (response.status === 204 || response.ok) {
+        // 2. Memperbarui State (Hapus dari array lokal 'tasks')
+        tasks = tasks.filter(task => task.id != idTugas);
+
+        // 3. Render ulang UI
+        renderTasks();
+      }
+    } catch (error) {
+      console.error("Gagal menghapus tugas:", error);
+    }
+  }
 });
 
 // pada input
