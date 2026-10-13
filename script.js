@@ -20,7 +20,6 @@ async function fetchTasks() {
   try {
     const response = await fetch('/api/tugas');
     
-    // Periksa apakah respons dari server berhasil (status 200-299)
     if (!response.ok) {
       throw new Error('Gagal mengambil data dari server');
     }
