@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker Kuliah</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="kartu-aplikasi">
+
+    <header class="bagian-judul">
+      <h1>Task Tracker Kuliah</h1>
+    </header>
+
+    <!-- Form Tambah Tugas -->
+    <div class="form-tugas">
+      <div class="baris-input">
+        <input
+          type="text"
+          id="input-tugas"
+          placeholder="Judul tugas (min. 3 karakter)..."
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="baris-input-group">
+        <select id="select-matkul">
+          <option value="" disabled selected>Pilih Mata Kuliah</option>
+          <option value="Pemrograman Web">Pemrograman Web</option>
+          <option value="Basis Data">Basis Data</option>
+          <option value="Jaringan Komputer">Jaringan Komputer</option>
+          <option value="Komunikasi Profesional">Komunikasi Profesional</option>
+        </select>
+
+        <input
+          type="date"
+          id="input-deadline"
+        >
+      </div>
+
+      <!-- Pesan Error Validasi -->
+      <p id="pesan-error" class="pesan-error"></p>
+
+      <button type="button" id="tombol-tambah">Tambah Tugas</button>
+    </div>
+
+    <!-- Baris Filter & Counter -->
+    <div class="filter-counter-wrapper">
+      <div class="baris-filter">
+        <button type="button" class="tombol-filter aktif" data-filter="semua">Semua</button>
+        <button type="button" class="tombol-filter" data-filter="aktif">Aktif</button>
+        <button type="button" class="tombol-filter" data-filter="selesai">Selesai</button>
+      </div>
+      <span id="counter-tugas" class="counter-tugas">0 tugas aktif</span>
+    </div>
+
+    <!-- Daftar Tugas -->
+    <ul id="daftar-tugas" class="daftar-tugas"></ul>
+
+    <footer class="bagian-footer">
+      <p>Klik teks tugas untuk menandai selesai</p>
+    </footer>
+
+  </main>
+
+<script src="script.js"></script>
+
+</body>
+</html>

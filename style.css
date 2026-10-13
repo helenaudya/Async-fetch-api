@@ -1,0 +1,197 @@
+/* Reset dasar */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f3f0;
+  color: #3b3833;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 40px 10px;
+}
+
+/* Kartu Utama */
+.kartu-aplikasi {
+  width: 100%;
+  max-width: 500px;
+  background-color: #ffffff;
+  border: 1px solid #dcd8d0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Judul */
+.bagian-judul {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.bagian-judul h1 {
+  font-size: 24px;
+  color: #4a5320;
+}
+
+/* Form Input */
+.form-tugas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.baris-input input,
+.baris-input-group select,
+.baris-input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #c8c2b6;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fcfbf9;
+  color: #3b3833;
+}
+
+.baris-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* Pesan Error */
+.pesan-error {
+  font-size: 12px;
+  color: #bc4749;
+  font-weight: bold;
+}
+
+/* Tombol Tambah */
+#tombol-tambah {
+  width: 100%;
+  padding: 10px;
+  background-color: #606c38;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#tombol-tambah:hover {
+  background-color: #4a5320;
+}
+
+/* Filter & Counter */
+.filter-counter-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e6e2db;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.baris-filter {
+  display: flex;
+  gap: 5px;
+}
+
+.tombol-filter {
+  padding: 6px 10px;
+  background-color: #ffffff;
+  color: #787268;
+  border: 1px solid #dcd8d0;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tombol-filter.on {
+  background-color: #bc6c25;
+  color: #ffffff;
+  border-color: #bc6c25;
+}
+
+.counter-tugas {
+  font-size: 12px;
+  color: #787268;
+}
+
+/* Daftar Tugas */
+.daftar-tugas {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+/* Kotak Item Tugas */
+.kotak-tugas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #fdfcfb;
+  border: 1px solid #dcd8d0;
+  border-radius: 6px;
+}
+
+.info-tugas {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.teks-tugas {
+  font-size: 14px;
+  font-weight: bold;
+  color: #3b3833;
+}
+
+.teks-detail {
+  font-size: 12px;
+  color: #8c8375;
+}
+
+/* Tugas Selesai */
+.kotak-tugas.selesai {
+  background-color: #f2efe9;
+  border-color: #e2ded6;
+}
+
+.kotak-tugas.selesai .teks-tugas {
+  text-decoration: line-through;
+  color: #9e978b;
+}
+
+/* Tombol Hapus */
+.tombol-hapus {
+  background-color: #fdf2f2;
+  color: #a83232;
+  border: 1px solid #f5c6c6;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tombol-hapus:hover {
+  background-color: #f8d7d7;
+}
+
+/* Footer */
+.bagian-footer {
+  text-align: center;
+  font-size: 11px;
+  color: #9e978b;
+  border-top: 1px solid #f0ece6;
+  padding-top: 10px;
+}
