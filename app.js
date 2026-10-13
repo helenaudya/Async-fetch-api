@@ -15,19 +15,17 @@ const tombolFilter = document.querySelectorAll(".tombol-filter");
 const pesanError = document.getElementById("pesan-error");
 const counterTugas = document.getElementById("counter-tugas");
 
+// (Baris global 'await fetch' sudah dihapus dari sini agar script tidak crash)
+
 // Fungsi helper untuk mengecek respons fetch
 async function handleResponse(response) {
-  // Khusus untuk DELETE dengan status 204 (No Content), tidak ada body JSON yang dikembalikan
   if (response.status === 204) {
     return true; 
   }
 
-  // Ambil data JSON dari respons
   const data = await response.json();
 
-  // Jika status respons tidak ok (misal: 400, 404, 500)
   if (!response.ok) {
-    // Lempar pesan error dari server jika ada, atau pesan default
     throw new Error(data.message || 'Terjadi kesalahan pada server');
   }
 
@@ -37,20 +35,19 @@ async function handleResponse(response) {
 // Fungsi untuk mengambil data tugas dari API
 async function fetchTasks() {
   try {
-    const response = await fetch('/api/tugas');
-    // Langsung gunakan helper handleResponse
+    const response = await fetch('http://localhost:3000/api/tugas');
     tasks = await handleResponse(response);
     renderTasks();
   } catch (error) {
-    console.error('Terjadi kesalahan:', error);
-    pesanError.textContent = error.message || 'Gagal memuat tugas dari server.';
+    console.warn('Gagal memuat dari server, menggunakan data lokal:', error);
+    // Jika backend belum aktif, tetap jalankan render dari data lokal
+    renderTasks();
   }
 }
 
 function renderTasks() {
   daftarTugas.innerHTML = "";
-  //task render
-  // filter tugas
+
   let filteredTasks = tasks;
   if (currentFilter === "aktif") {
     filteredTasks = tasks.filter(task => task.completed === false);
@@ -58,7 +55,6 @@ function renderTasks() {
     filteredTasks = tasks.filter(task => task.completed === true);
   }
 
-  // tugas kosong di filter
   if (filteredTasks.length === 0) {
     const liKosong = document.createElement("li");
     liKosong.textContent = "Belum ada tugas.";
@@ -66,7 +62,6 @@ function renderTasks() {
     return;
   }
 
-  // loop untuk menampilkan tugas
   filteredTasks.forEach(function(task) {
     const li = document.createElement("li");
     li.className = "kotak-tugas";
@@ -74,7 +69,6 @@ function renderTasks() {
       li.classList.add("selesai");
     }
 
-    // Bagian info (Judul & Detail)
     const infoDiv = document.createElement("div");
     infoDiv.className = "info-tugas";
 
@@ -91,19 +85,16 @@ function renderTasks() {
 
     // ubah status
     infoDiv.addEventListener("click", function() {
-  if (task.completed === true) {
-    task.completed = false;
-  } else {
-    task.completed = true;
-  }
-  renderTasks();
-});
+      task.completed = !task.completed;
+      renderTasks();
+    });
 
-    // hapus
+    // Tombol Hapus
     const tombolHapus = document.createElement("button");
     tombolHapus.type = "button";
     tombolHapus.className = "tombol-hapus";
     tombolHapus.textContent = "Hapus";
+    tombolHapus.dataset.id = task.id; // Untuk event delegation
 
     tombolHapus.addEventListener("click", function() {
       const posisi = tasks.indexOf(task);
@@ -116,7 +107,6 @@ function renderTasks() {
     daftarTugas.appendChild(li);
   });
 
-  // hitung tugas aktif
   let jumlahAktif = 0;
   for (let i = 0; i < tasks.length; i++) {
     if (tasks[i].completed === false) {
@@ -129,8 +119,7 @@ function renderTasks() {
   }
 }
 
-// add new task
-// Mengubah fungsi tambahTugas menjadi async untuk mendukung POST API
+// Fungsi Tambah Tugas
 async function tambahTugas() {
   const teksInput = inputTugas.value.trim();
   const matkulInput = selectMatkul.value;
@@ -138,7 +127,6 @@ async function tambahTugas() {
 
   pesanError.textContent = "";
 
-  // 1. Validasi Input (sudah ada sebelumnya)
   if (teksInput.length < 3) {
     pesanError.textContent = "Judul tugas minimal 3 karakter!";
     return;
@@ -152,7 +140,6 @@ async function tambahTugas() {
     return;
   }
 
-  // 2. Siapkan data objek yang akan dikirim ke server
   const tugasBaru = {
     text: teksInput,
     matkul: matkulInput,
@@ -161,57 +148,56 @@ async function tambahTugas() {
   };
 
   try {
-    // 3. Kirim data ke server menggunakan POST /api/tugas
-    const response = await fetch('/api/tugas', {
+    const response = await fetch('http://localhost:3000/api/tugas', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json' // Memberitahu server bahwa data berformat JSON
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(tugasBaru) // Mengubah objek JS menjadi string JSON
+      body: JSON.stringify(tugasBaru)
     });
 
-    // Periksa jika server menolak / terjadi error
     if (!response.ok) {
       throw new Error('Gagal menyimpan tugas ke server');
     }
 
-    // 4. Jika berhasil, ambil ulang data terbaru dari server agar UI sinkron
     await fetchTasks();
 
-    // 5. Kosongkan form input dan pesan error
-    inputTugas.value = "";
-    selectMatkul.selectedIndex = 0;
-    inputDeadline.value = "";
-    pesanError.textContent = "";
-
   } catch (error) {
-    console.error('Terjadi kesalahan:', error);
-    pesanError.textContent = 'Gagal menambahkan tugas. Coba lagi.';
+    console.warn("Server tidak aktif, menyimpan secara lokal:", error);
+    tasks.push(tugasBaru);
+    renderTasks();
   }
+
+  inputTugas.value = "";
+  selectMatkul.selectedIndex = 0;
+  inputDeadline.value = "";
+  pesanError.textContent = "";
 }
 
-// pada tombol tambah
+// Event Listener Tombol Tambah
 tombolTambah.addEventListener("click", function() {
   tambahTugas();
 });
 
-// Memasang Event Delegation pada elemen induk (daftarTugas / <ul>)
+// Event Listener Enter di Input
+inputTugas.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    tambahTugas();
+  }
+});
+
+// Event Delegation Hapus
 daftarTugas.addEventListener("click", async function(event) {
-  // Cek apakah yang diklik adalah tombol hapus
   if (event.target.classList.contains("tombol-hapus")) {
-    const idTugas = event.target.dataset.id; // Ambil ID tugas dari atribut HTML
+    const idTugas = event.target.dataset.id;
 
     try {
-      // 1. Kirim request DELETE ke server
-      const response = await fetch(`/api/tugas/${idTugas}`, {
+      const response = await fetch(`http://localhost:3000/api/tugas/${idTugas}`, {
         method: 'DELETE'
       });
 
       if (response.status === 204 || response.ok) {
-        // 2. Memperbarui State (Hapus dari array lokal 'tasks')
         tasks = tasks.filter(task => task.id != idTugas);
-
-        // 3. Render ulang UI
         renderTasks();
       }
     } catch (error) {
@@ -220,60 +206,19 @@ daftarTugas.addEventListener("click", async function(event) {
   }
 });
 
-// pada input
-inputTugas.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    tambahTugas();
-  }
-});
-
-// filter
+// Filter
 tombolFilter.forEach(function(tombol) {
   tombol.addEventListener("click", function() {
     currentFilter = tombol.getAttribute("data-filter");
 
-    // hapus kelas aktif dari semua tombol filter
     tombolFilter.forEach(function(btn) {
       btn.classList.remove("aktif");
     });
 
-    // tambah kelas aktif ke tombol yang diklik
     tombol.classList.add("aktif");
-
     renderTasks();
   });
 });
 
-async function muatDataAwal() {
-  try {
-    // Menjalankan beberapa fetch sekaligus secara paralel
-    const [responseTugas, responseMatkul] = await Promise.all([
-      fetch('/api/tugas'),
-      fetch('/api/matkul') // Contoh endpoint lain jika ada
-    ]);
-
-    // Cek apakah kedua respons berhasil
-    if (!responseTugas.ok || !responseMatkul.ok) {
-      throw new Error('Gagal mengambil data dari server');
-    }
-
-    // Ubah keduanya menjadi JSON secara bersamaan
-    const dataTugas = await responseTugas.json();
-    const dataMatkul = await responseMatkul.json();
-
-    // Masukkan ke state masing-masing
-    tasks = dataTugas;
-    // matkulList = dataMatkul; (jika Anda punya variabel untuk menampung matkul)
-
-    // Render ulang UI
-    renderTasks();
-
-  } catch (error) {
-    console.error('Terjadi kesalahan saat memuat data:', error);
-    pesanError.textContent = 'Gagal memuat data awal.';
-  }
-}
-
-// panggil fungsi lagi untuk menampilkan tugas saat pertama kali halaman dimuat
-fetchTasks(); 
-// atau muatDataAwal(); jika ingin menggunakan Promise.all
+// Panggil fetch saat halaman dimuat
+fetchTasks();
