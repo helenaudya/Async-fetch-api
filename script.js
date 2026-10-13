@@ -15,26 +15,35 @@ const tombolFilter = document.querySelectorAll(".tombol-filter");
 const pesanError = document.getElementById("pesan-error");
 const counterTugas = document.getElementById("counter-tugas");
 
+// Fungsi helper untuk mengecek respons fetch
+async function handleResponse(response) {
+  // Khusus untuk DELETE dengan status 204 (No Content), tidak ada body JSON yang dikembalikan
+  if (response.status === 204) {
+    return true; 
+  }
+
+  // Ambil data JSON dari respons
+  const data = await response.json();
+
+  // Jika status respons tidak ok (misal: 400, 404, 500)
+  if (!response.ok) {
+    // Lempar pesan error dari server jika ada, atau pesan default
+    throw new Error(data.message || 'Terjadi kesalahan pada server');
+  }
+
+  return data;
+}
+
 // Fungsi untuk mengambil data tugas dari API
 async function fetchTasks() {
   try {
     const response = await fetch('/api/tugas');
-    
-    if (!response.ok) {
-      throw new Error('Gagal mengambil data dari server');
-    }
-
-    // Ubah respons menjadi format JSON
-    const data = await response.json();
-    
-    // Masukkan data dari API ke dalam variabel tasks kita
-    tasks = data;
-
-    // Render ulang tampilan agar tugas-tugas dari server muncul di layar
+    // Langsung gunakan helper handleResponse
+    tasks = await handleResponse(response);
     renderTasks();
   } catch (error) {
     console.error('Terjadi kesalahan:', error);
-    pesanError.textContent = 'Gagal memuat tugas dari server.';
+    pesanError.textContent = error.message || 'Gagal memuat tugas dari server.';
   }
 }
 
@@ -82,13 +91,13 @@ function renderTasks() {
 
     // ubah status
     infoDiv.addEventListener("click", function() {
-      if (task.completed === true) {
-        task.completed = false;
-      } else {
-        task.completed = true;
-      }
-      renderTasks();
-    });
+  if (task.completed === true) {
+    task.completed = false;
+  } else {
+    task.completed = true;
+  }
+  renderTasks();
+});
 
     // hapus
     const tombolHapus = document.createElement("button");
@@ -235,5 +244,36 @@ tombolFilter.forEach(function(tombol) {
   });
 });
 
+async function muatDataAwal() {
+  try {
+    // Menjalankan beberapa fetch sekaligus secara paralel
+    const [responseTugas, responseMatkul] = await Promise.all([
+      fetch('/api/tugas'),
+      fetch('/api/matkul') // Contoh endpoint lain jika ada
+    ]);
+
+    // Cek apakah kedua respons berhasil
+    if (!responseTugas.ok || !responseMatkul.ok) {
+      throw new Error('Gagal mengambil data dari server');
+    }
+
+    // Ubah keduanya menjadi JSON secara bersamaan
+    const dataTugas = await responseTugas.json();
+    const dataMatkul = await responseMatkul.json();
+
+    // Masukkan ke state masing-masing
+    tasks = dataTugas;
+    // matkulList = dataMatkul; (jika Anda punya variabel untuk menampung matkul)
+
+    // Render ulang UI
+    renderTasks();
+
+  } catch (error) {
+    console.error('Terjadi kesalahan saat memuat data:', error);
+    pesanError.textContent = 'Gagal memuat data awal.';
+  }
+}
+
 // panggil fungsi lagi untuk menampilkan tugas saat pertama kali halaman dimuat
-renderTasks();
+fetchTasks(); 
+// atau muatDataAwal(); jika ingin menggunakan Promise.all
