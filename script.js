@@ -40,7 +40,7 @@ async function fetchTasks() {
 
 function renderTasks() {
   daftarTugas.innerHTML = "";
-
+  //task render
   // filter tugas
   let filteredTasks = tasks;
   if (currentFilter === "aktif") {
